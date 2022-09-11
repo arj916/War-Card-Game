@@ -1,0 +1,282 @@
+
+import random
+
+class Card:
+    def __init__(self,value,suit, rank):
+        self.value = value
+        self.suit = suit
+        self.rank = rank
+        
+    def determine_suit(self,num):
+        if num == 1:
+            return "Spade"
+        elif num == 2:
+            return "Heart"
+        elif num == 3:
+            return "Diamond"
+        elif num == 4:
+            return "Club"
+    def determine_rank(self,num):
+        if num == 1:
+            return "Ace"
+        elif num == 11:
+            return "Jack"
+        elif num == 12:
+            return "Queen"
+        elif num == 4:
+            return "King"
+        else:
+            return str(num)
+  
+    def print_symbol(self):
+        if self.suit == 1:
+            return"♠"
+        elif self.suit == 2:
+            return"♥"
+        elif self.suit == 3:
+            return "♦"
+        elif self.suit == 4:
+            return "♣"
+    def draw_card(self):
+
+        c = self.print_symbol() +self.determine_rank(self.value) + self.print_symbol()
+        return c
+
+
+        
+    def compare(self,c1):
+        print( self.draw_card() + " vs " + c1.draw_card()) 
+        if self.value > c1.value:
+            return 1
+        elif self.value == c1.value:
+            return 0
+        else:
+            return -1
+        
+        
+        
+        
+class Deck:
+    def __init__(self,cards):
+        self.cards = cards
+    
+    def make_deck(self):
+        temp_card = []
+       
+        for x in range(4):
+            for i in range(13):
+                c = Card(((i+1)*(x+1)),x+1,i+1)
+                temp_card.append(c)
+        self.cards = temp_card
+    
+    def shuffle(self):
+        temp_card = []
+        hold = self.cards
+        print(len(hold))
+        while len(hold)> 0:
+            c = random.choice(hold)
+            temp_card.append(c)
+            hold.remove(c)
+
+        self.cards = temp_card
+    
+class Player:
+    def __init__(self,cards,name):
+        self.cards = cards
+        self.name = name
+        
+    def winner(self):
+        if len(self.cards) == 52:
+            return 1
+        elif len(self.cards) > 0:
+            return 0
+        else:
+            return -1
+        
+    def comp(self,c):
+        return self.cards[0].compare(c)
+            
+            
+    def changing_cards(self, play):
+        while self.winner() == 0 and play.winner() == 0:
+            c1 = self.cards[0]
+            c2 = play.cards[0]
+            self.cards.remove(c1)
+            print(len(self.cards))
+            play.cards.remove(c2)
+            if c1.compare(c2) == 1:
+                self.cards.append(c2)
+                self.cards.append(c1)
+            elif c1.compare(c2) == 0:
+                self.changing_cards(play)
+            else:
+                play.cards.append(c2)
+                play.cards.append(c1)
+        
+            
+class Game:
+    def __init__(self,deck,players):
+        self.deck = deck
+        self.players = players
+            
+    def deal(self):
+        temp_deck = self.deck.cards
+        for x in self.players:
+            for i in range(26):
+                c = temp_deck[0]
+                x.cards.append(c)
+                temp_deck.remove(c)
+            self.deck.cards = temp_deck
+        
+    def winner_list(self):
+        win = []
+        for p in self.players:
+            num = p.winner()
+            if num > 0:
+                win.append(p)
+        return win
+       
+    def set_up(self):
+        n1 = input("what is Player 1's name: ")
+        n2 = input("what is Player 2's name: ")
+        p1 = Player([],n1)
+        p2 = Player([],n2)
+        self.players.append(p1)
+        self.players.append(p2)
+        self.deck.make_deck()
+        self.deck.shuffle()
+        self.deal()
+        
+    def start_game(self):
+        win = self.winner_list()
+        while len(win) > 0:
+            p1 = self.players[0]
+            p2 = self.players[1]
+            p1.changing_cards(p2)
+            win = self.winner_list()
+                
+        print(str(win[0].name)+" is the winner!")
+            
+                    
+                
+        
+            
+        
+            
+        
+                   
+c = Card(11,1,11)
+c1 = Card(8,2,8)
+c2 = Card(1,3,1)
+c3 = Card(12,4,12)
+#Card class testing
+#determine_suit testing
+assert c.determine_suit(c.suit) == "Spade"
+assert c1.determine_suit(c1.suit) == "Heart"
+assert c2.determine_suit(c2.suit) == "Diamond"
+assert c3.determine_suit(c3.suit) == "Club"
+
+#determine rank testing
+assert c.determine_rank(c.rank) == "Jack"
+assert c1.determine_rank(c1.rank) == "8"
+assert c2.determine_rank(c2.rank) == "Ace"
+assert c3.determine_rank(c3.rank) == "Queen"
+
+#print symbol testing
+assert c.print_symbol() == "♠"
+assert c1.print_symbol() == "♥"
+assert c2.print_symbol() == "♦"
+assert c3.print_symbol() == "♣"
+
+#draw_card testing
+assert c.draw_card() == "♠Jack♠"
+assert c1.draw_card() == "♥8♥"
+assert c2.draw_card() == "♦Ace♦"
+assert c3.draw_card() == "♣Queen♣"
+
+#compare testing
+c4 = Card(12,1,12)
+assert c.compare(c1) == 1
+assert c1.compare(c2) == 1
+assert c2.compare(c1) == -1
+assert c3.compare(c4) == 0
+
+#deck testing
+d = Deck([])
+assert len(d.cards) == 0
+#testing make deck
+d.make_deck()
+assert len(d.cards) == 52
+assert d.cards[0].value == 1
+assert d.cards[0].rank == 1
+assert d.cards[0].suit == 1
+d.shuffle()
+assert len(d.cards) == 52
+
+#player testing
+
+p = Player([],"Ally")
+p1 = Player([],"Ashna")
+p2 = Player([c], "Abby")
+p3 = Player(d.cards, "Emily")
+p4 = Player([c1,c2], "Claire")
+p5 = Player([c3], "Becky")
+p6 = Player([c4], "Rebecca")
+p7 = Player([c,c3], "Rachel")
+
+# winner testing
+
+assert p1.winner() == -1
+assert p3.winner() == 1
+assert p4.winner() == 0
+
+
+#comp testing
+
+assert p4.comp(p5.cards[0]) == -1
+assert p5.comp(p6.cards[0]) == 0
+assert p5.comp(p4.cards[0]) == 1
+assert p4.comp(p7.cards[0]) == -1
+assert p5.comp(p6.cards[0]) == 0
+
+
+
+#changing cards testing
+assert len(p4.cards) == 2
+p4.changing_cards(p7)
+print(len(p4.cards))
+assert len(p4.cards) == 0
+assert len(p7.cards) == 4
+p5.changing_cards(p2)
+assert len(p5.cards) == 2
+assert len(p2.cards) == 0
+
+#game testing
+d1 = Deck([])
+g = Game(d1,[p1,p])
+g1 = Game(d, [p1,p])
+
+#deal testing
+g1.deal()
+assert len(p.cards) == 26
+assert len(p1.cards) == 26
+
+#winner list testing
+d2 = Deck([])
+d2.make_deck()
+g2 = Game(d,[Player("abby",[c]), Player("ashna",[c1])])
+g3 = Game(d, [Player(d2.cards,"emily"),p4])
+assert len(g2.winner_list()) == 0
+assert len(g3.winner_list()) == 1
+
+#set up testing
+deck_base = Deck([])
+game_base = Game(deck_base,[])
+game_base.set_up()
+play = game_base.players
+assert len(game_base.players) == 2
+assert len(play[0].cards) == 26
+assert len(play[0].cards) == 26
+assert len(game_base.deck.cards) == 52
+
+#start game testing
