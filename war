@@ -142,7 +142,7 @@ class Player:
             if c1.compare(c2) == 1:
                 return self.name +" won this round!"
             elif c1.compare(c2) == 0:
-                self.determine_outcome(play)
+                return self.determine_outcome(play)
             else:
                 return play.name +" won this round!"
                 
@@ -192,10 +192,21 @@ class Game:
         self.deck.make_deck()
         self.deck.shuffle()
         self.deal()
-        
+
+     #initiates all surrounding functions to start and continue game play   
     def start_game(self):
         win = self.winner_list()
-        next_round = True
+        game_rules = """ Welcome to Abby Johnson's War card game!
+        Rules before we begin!
+        -each player will start with 26 cards facing downward
+        -when the round starts each player will flip over a card
+        -the player who has the card with the higher value wins the round and gets both cards
+        -goal to win is the get the entire deck
+        - in the instance of a tie another round will be played and winner will get cards from
+        both the current and previous round
+        """
+        print(game_rules)
+        next_round = input("Are you ready to begin(True/False): ")
         while len(win) and next_round > 0:
             p1 = self.players[0]
             p2 = self.players[1]
@@ -289,17 +300,37 @@ assert p5.comp(p4.cards[0]) == 1
 assert p4.comp(p7.cards[0]) == -1
 assert p5.comp(p6.cards[0]) == 0
 
+#determine_outcome testing
+print(p4.determine_outcome(p7))
+
+assert p4.determine_outcome(p5) == "Becky won this round!"
+assert p4.determine_outcome(p7) == "Rachel won this round!"
+assert len(p4.cards ) == 2
+
+#stats testing
 
 
 #changing cards testing
+pp = Player([],"Ally")
+pp1 = Player([],"Ashna")
+pp2 = Player([c], "Abby")
+pp3 = Player(d.cards, "Emily")
+pp4 = Player([c1,c2], "Claire")
+pp5 = Player([c3], "Becky")
+pp6 = Player([c4], "Rebecca")
+pp7 = Player([c,c3], "Rachel")
+
+
 assert len(p4.cards) == 2
-p4.changing_cards(p7)
-print(len(p4.cards))
-assert len(p4.cards) == 0
-assert len(p7.cards) == 4
-p5.changing_cards(p2)
-assert len(p5.cards) == 2
-assert len(p2.cards) == 0
+pp4.changing_cards(pp7)
+
+
+assert len(pp4.cards) == 0
+
+assert len(pp7.cards) == 4
+pp5.changing_cards(pp2)
+assert len(pp5.cards) == 2
+assert len(pp2.cards) == 0
 
 #game testing
 d1 = Deck([])
