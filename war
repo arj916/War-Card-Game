@@ -1,12 +1,17 @@
 
 import random
 
+#object class holding the information of a single card in a standard deck
 class Card:
+
+    #constructor with card value(1-13), suit(1-4), and rank(1-13)
     def __init__(self,value,suit, rank):
         self.value = value
         self.suit = suit
         self.rank = rank
-        
+
+    #determines the related suit name when given the number (1-4) from constructor
+    # parameter: num:int -> number related to suit of card
     def determine_suit(self,num):
         if num == 1:
             return "Spade"
@@ -16,6 +21,9 @@ class Card:
             return "Diamond"
         elif num == 4:
             return "Club"
+
+    #determines the related rank name when given the number (1-13) from constructor
+    # parameter: num:int -> number related to rank of card
     def determine_rank(self,num):
         if num == 1:
             return "Ace"
@@ -27,7 +35,8 @@ class Card:
             return "King"
         else:
             return str(num)
-  
+    
+    #returns the image symbol for the suit based off the suit number
     def print_symbol(self):
         if self.suit == 1:
             return"♠"
@@ -37,13 +46,13 @@ class Card:
             return "♦"
         elif self.suit == 4:
             return "♣"
+    #draws the card information on the screen
     def draw_card(self):
-
-        c = self.print_symbol() +self.determine_rank(self.value) + self.print_symbol()
+        c =  self.print_symbol() +self.determine_rank(self.value) + self.print_symbol()
         return c
 
 
-        
+    #compares two cards together and returns 1 if the value is larger,0 if equal and -1 if smaller
     def compare(self,c1):
         print( self.draw_card() + " vs " + c1.draw_card()) 
         if self.value > c1.value:
@@ -55,11 +64,14 @@ class Card:
         
         
         
-        
+ #object class that represents all 52 cards found in a standard deck       
 class Deck:
+
+    #constructor that takes in a list of card objects
     def __init__(self,cards):
         self.cards = cards
     
+    #initates the cards paramerter with the 52 cards of a standard deck
     def make_deck(self):
         temp_card = []
        
@@ -69,6 +81,7 @@ class Deck:
                 temp_card.append(c)
         self.cards = temp_card
     
+    #puts the cards within the card list into a random order
     def shuffle(self):
         temp_card = []
         hold = self.cards
@@ -79,12 +92,16 @@ class Deck:
             hold.remove(c)
 
         self.cards = temp_card
-    
+
+ #object class that represents a player within the card game war   
 class Player:
+
+    #constructor object takes in a parameter of a list of cards for their hand and their name
     def __init__(self,cards,name):
         self.cards = cards
         self.name = name
-        
+
+     #determines the outcome of the game, based on card length of the players hand   
     def winner(self):
         if len(self.cards) == 52:
             return 1
@@ -92,11 +109,14 @@ class Player:
             return 0
         else:
             return -1
-        
+
+    #compares the first card of a players hand to another card    
     def comp(self,c):
         return self.cards[0].compare(c)
             
-            
+     #determines the winner of a round between two players and gives the cards back to the winning player
+     # if there is a tie another round will be played and winner gets all the 
+     # cards from this round and previous round       
     def changing_cards(self, play):
         while self.winner() == 0 and play.winner() == 0:
             c1 = self.cards[0]
@@ -107,18 +127,41 @@ class Player:
             if c1.compare(c2) == 1:
                 self.cards.append(c2)
                 self.cards.append(c1)
+            
             elif c1.compare(c2) == 0:
                 self.changing_cards(play)
             else:
                 play.cards.append(c2)
                 play.cards.append(c1)
-        
-            
+    #return the outcome of each round in string form
+    def determine_outcome(self, play):
+        while self.winner() == 0 and play.winner() == 0:
+            c1 = self.cards[0]
+            c2 = play.cards[0]
+            play.cards.remove(c2)
+            if c1.compare(c2) == 1:
+                return self.name +" won this round!"
+            elif c1.compare(c2) == 0:
+                self.determine_outcome(play)
+            else:
+                return play.name +" won this round!"
+                
+
+    #return the winner of each round and how many cards each player has
+    def stats(self, play):
+        outcome = self.determine_outcome(play)
+        info_play1 = "Player: "+ self.name + " has " +str(len(self.cards))
+        info_play2 = "Player: "+ play.name + " has " +str(len(play.cards))
+
+#object class that contains the setup and exucsions functions of the war game          
 class Game:
+
+    #constructor that takes in a deck object a list of 2 player objects
     def __init__(self,deck,players):
         self.deck = deck
         self.players = players
-            
+
+    #redistributes the cards from the deck parameter evenly to to players hands      
     def deal(self):
         temp_deck = self.deck.cards
         for x in self.players:
@@ -127,7 +170,9 @@ class Game:
                 x.cards.append(c)
                 temp_deck.remove(c)
             self.deck.cards = temp_deck
-        
+
+    #determines if either of the two players have met the winner parameters
+    # returns a list of -1,0,1 to show the status of each player in the game  
     def winner_list(self):
         win = []
         for p in self.players:
@@ -135,7 +180,8 @@ class Game:
             if num > 0:
                 win.append(p)
         return win
-       
+
+    #obtains starting information and the set the cards up in the replaces for game start  
     def set_up(self):
         n1 = input("what is Player 1's name: ")
         n2 = input("what is Player 2's name: ")
@@ -149,11 +195,15 @@ class Game:
         
     def start_game(self):
         win = self.winner_list()
-        while len(win) > 0:
+        next_round = True
+        while len(win) and next_round > 0:
             p1 = self.players[0]
             p2 = self.players[1]
+            round_info = p1.stats(play)
             p1.changing_cards(p2)
             win = self.winner_list()
+            print(round_info)
+            next_round = input("are you ready for the next round(True/False): ")
                 
         print(str(win[0].name)+" is the winner!")
             
@@ -277,6 +327,6 @@ play = game_base.players
 assert len(game_base.players) == 2
 assert len(play[0].cards) == 26
 assert len(play[0].cards) == 26
-assert len(game_base.deck.cards) == 52
+assert len(game_base.deck.cards) == 0
 
 #start game testing
